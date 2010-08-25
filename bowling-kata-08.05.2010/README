@@ -1,0 +1,74 @@
+Bowling Kata Code Sample
+Author: Anthony Navarre
+
+This code sample is my first attempt at a kata by myself, my only previous
+kata being a brief pairing with the most generous Pat Reagan of Viget.
+
+Since I did this kata solo, I tried to self-monitor for pitfalls, but
+my observations are likely not as those that I might have gained from
+a pairing. Having acknowledged that, here are a few things I noticed
+while doing this kata:
+
+1. Walk, Don't Run: I had a very hard time throughout this kata trying to
+slow myself down enough to take baby-steps. Being so accustomed to using
+PHP, coming back to Ruby makes one want to write every line with simple
+elegance -- allowing my initial attempt to be an ugly one was difficult
+
+2. Refactoring: After I got a test to pass, some of the most fun I
+had was in refactoring the code. There were plenty of times when I had
+something hideous like this...
+
+  if(has_next_frame?)
+    if(next_frame.strike? && next_frame.has_next_frame?)
+      pins + 10 + next_frame.next_frame.rolls.first
+    elsif(next_frame.rolls.length > 1)
+      pins + next_frame.rolls.inject(nil) {|sum,n| sum ? sum+n : n }
+    else
+      nil
+    end
+  else
+    nil
+  end
+
+...or this...
+
+  def score
+    if(frames.length == 12)
+      frames.collect{ |f|
+        if(f.score.nil?)
+          f.pins
+        else
+          f.score
+        end
+      }.inject(nil) { |sum,n| sum ? sum+n : n }
+    else
+      frames.collect{ |f| f.score }.inject(nil) { |sum,n| sum ? sum+n : n }
+    end
+  end
+
+...but I'm proud to have gotten most of my methods down to one-liners
+in the end.
+
+3. Alternate Approaches: After getting 80-90% through this kata, I began to
+get stuck on end-game scoring with strikes and spares (in the end, my code was
+fine, but my test-cases were faulty due to a misunderstanding of the rules...
+needless to say, I don't often roll a 280 game). In searching for how others
+have solved the problem, I didn't find a solution compatible with my approach,
+but was surprised to find such different approaches. One example (in Scala, if
+I remember correctly), used a property to store the array of rolls, a roll method
+to add to the array, and a score method, and was written in about 20 lines of code
+or so -- truly elegant. Practicing Ruby outside of my day-job will hopefully bring
+many more "aha" moments like this.
+
+One design decision that I'd like to point out is that, early on, I thought a bit
+about creating a view that corresponds with a typical bowling score card.
+In cases where a frame is a spare or a strike, since it doesn't get scored until
+later rolls, the frame is left blank. I wanted an easy way to allow for this when
+coding a view, so I decided to have Frame#score return nil in these cases, that
+way the yet-to-be-coded scorecard view won't need to know anything about the frame
+objects that it is loading.
+
+If you have any feedback for me, please feel free to pick me apart! I'm new to TDD,
+so I'm eager to learn (and unlearn if needed): me@anthonynavarre.com
+
+PS: I don't roll on Shabbos.
