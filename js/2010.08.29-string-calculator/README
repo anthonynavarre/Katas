@@ -1,0 +1,13 @@
+StringCalculator Kata Code Sample: Jasmine
+Author: Anthony Navarre
+http://github.com/anthonynavarre/Katas/tree/master/js/2010.08.29-string-calculator/
+
+The String Calculator kata is the first one I ever tried -- had the great pleasure
+of being introduced to this one by Patrick Reagan from Viget Labs.
+
+Anyone reading my code on this one will notice right away that I get hung up on
+the requirement to allow multiple delimiters. Loving Jasmine, but clearly, I'll
+need to take a look at other peoples' approaches to the latter half of the exercise
+before I give this one another shot.
+
+Original Kata: http://osherove.com/tdd-kata-1/
