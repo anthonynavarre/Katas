@@ -1,0 +1,30 @@
+Checkout Code Kata
+Author: Anthony Navarre
+http://github.com/anthonynavarre/Katas/tree/master/ruby/2010.08.24-checkout-kata/
+
+I owe much of this kata's success to its accompanying article on David Thomas'
+CodeKata website: http://codekata.pragprog.com/2007/01/kata_nine_back_.html
+Besides providing very clear parameters for the exercise, David also provides
+a sample interface and several sample tests. I probably would have had a much
+more rocky start if not for David's hints (I used several of his sample tests
+for my own acceptance tests).
+
+That being said, I feel a swell of pride with this kata, compared to the 
+bowling kata I recently completed
+(http://github.com/anthonynavarre/Katas/tree/master/2010.08.05-bowling-kata/),
+because I required considerably less time to satisfy this kata's requirements.
+
+Being only the 2nd kata I've attempted on my own, I already feel better about
+allowing myself to write ugly code on the first pass (and trusting that I'll
+come back to it very soon). That was a fun sensation, but the most interesting
+part of this kata was the opportunity to use test doubles for the first time.
+
+I've read up on test doubles, but since I'm fresh to TDD, I've never attempted
+to use them in practice. I wonder if I've used the mocks in an appropriate
+fashion -- it certainly isn't 2nd nature yet, as I find myself reminding myself
+about the difference between mocks and stubs, second-guessing my choices with every
+keystroke.
+
+It's fun to be learning again, and I look forward to future pairings
+with more experienced Rubyists so I can start to catch up on all the TDD goodness
+I've been missing out on all this time.
