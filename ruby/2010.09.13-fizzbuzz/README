@@ -1,0 +1,7 @@
+FizzBuzz Kata Code Sample
+Author: Anthony Navarre
+http://github.com/anthonynavarre/Katas/tree/master/ruby/2010.05.2010-fizzbuzz/
+
+Okay, so it's pretty hard to take credit for FizzBuzz. After all, modulus
+does all the work. But since I had to do this during an interview recently,
+I figured I'd go ahead and toss it into the code samples.
