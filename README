@@ -4,3 +4,4 @@
 
 * At least 1 kata in something a little less familiar...Objective C? Java?
 * Redo Roman Numerals Kata, this time supporting backwards conversion + Exception handling
+* Do Dave Thomas' "Data Munging" kata: http://codekata.pragprog.com/2007/01/kata_four_data_.html
