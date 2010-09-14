@@ -1,0 +1,19 @@
+Roman Numerals Kata
+Author: Anthony Navarre
+http://github.com/anthonynavarre/Katas/tree/master/ruby/2010.09.01-roman-numerals/
+
+I still need to do the 2nd part of this kata: convert in the other direction, but
+the thing that occurred to me while doing the first part is that I should make it
+a priority to find katas that don't tempt me to go straight to a mixin for String.
+
+Of course, the other half of that is that I should try to do these same katas with
+a totally different approach.
+
+The other thing that this particular kata brings to mind is that most katas I've
+done so far do not require that the practitioner check for invalid inputs, which is,
+of course, not a luxury one can afford in the real world. Sure, these are supposed
+to teach one to focus on a specific problem, but I suppose the next time I do this
+kata, there won't be any harm in testing for an Exception on 'IXI' after all the
+other tests are passing.
+
+Original Kata: http://codingdojo.org/cgi-bin/wiki.pl?KataRomanNumerals
