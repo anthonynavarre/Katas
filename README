@@ -1,0 +1,6 @@
+= Code Katas (so far only in Ruby & JavaScript) by yours truly.
+
+== TODO:
+
+* At least 1 kata in something a little less familiar...Objective C? Java?
+* Redo Roman Numerals Kata, this time supporting backwards conversion + Exception handling
