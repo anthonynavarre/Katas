@@ -1,0 +1,9 @@
+body {
+  text-align: center;
+}
+
+#game {
+  border: 1px solid #ccc;
+  margin: 20px auto;
+}
+
