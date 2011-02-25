@@ -2,6 +2,10 @@ body {
   text-align: center;
 }
 
+button {
+  float: right;
+}
+
 #game {
   border: 1px solid #ccc;
   margin: 20px auto;

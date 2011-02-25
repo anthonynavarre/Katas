@@ -16,40 +16,31 @@ var Life = function (canvas) {
 
   base.Cell = function (x, y) {
 
+    var _neighbors = [];
     var _living = false;
 
-    // var _neighbors = function () {
-      // var neighborSet = [];
-      // var dl = base.cells.length;
-
-      // for (var i = 0; i < dl; i++) {
-        // var cell = base.cells[i];
-
-        // if ((cell.x !== x && cell.y !== y) &&
-            // Math.abs(cell.x - Math.abs(x - base.GRID_SPACING)) < base.GRID_SPACING &&
-            // Math.abs(cell.y - Math.abs(y - base.GRID_SPACING)) < base.GRID_SPACING
-           // ) {
-          // neighborSet.push(cell);
-        // }
-      // }
-
-      // // base.context.strokeStyle = '#f00';
-      // // base.context.strokeRect(x, y, base.GRID_SPACING, base.GRID_SPACING);
-
-      // // for (var n = 0; n < neighborSet.length; n++) {
-        // // base.context.fillStyle = '#0f0';
-        // // base.context.fillRect(neighborSet[n].x, neighborSet[n].y, base.GRID_SPACING, base.GRID_SPACING);
-      // // }
-      // // base.context.fillStyle = '#000';
-      // // base.context.strokeStyle = '#000';
-
-      // return neighborSet;
-    // }();
-
     var _addNeighbor = function (neighbor) {
-      if (typeof neighbor === 'undefined') return;
-      this.neighbors.push(neighbor);
-      neighbor.neighbors.push(this);
+      if (typeof neighbor === 'undefined') {
+        return;
+      }
+      _neighbors.push(neighbor);
+    };
+
+    var _setNeighbors = function () {
+      var x = this.x;
+      var y = this.y;
+      var lx = this.x - base.GRID_SPACING;
+      var up = this.y - base.GRID_SPACING;
+      var rx = this.x + base.GRID_SPACING;
+      var dn = this.y + base.GRID_SPACING;
+      _addNeighbor(base.cellAt(lx, up));
+      _addNeighbor(base.cellAt(x, up));
+      _addNeighbor(base.cellAt(rx, up));
+      _addNeighbor(base.cellAt(lx, y));
+      _addNeighbor(base.cellAt(rx, y));
+      _addNeighbor(base.cellAt(lx, dn));
+      _addNeighbor(base.cellAt(x, dn));
+      _addNeighbor(base.cellAt(rx, dn));
     };
 
     var _spawn = function () {
@@ -68,8 +59,8 @@ var Life = function (canvas) {
       die: _die,
       spawn: _spawn,
       living: _living,
-      neighbors: [],
-      addNeighbor: _addNeighbor
+      neighbors: _neighbors,
+      setNeighbors: _setNeighbors
     };
   };
 
@@ -89,30 +80,45 @@ var Life = function (canvas) {
   base.context.lineWidth = 0.3;
 
   var i = 0;
-  for (var y = base.GRID_SPACING; y < base.height; y += base.GRID_SPACING) {
+  for (var y = 0; y < base.height; y += base.GRID_SPACING) {
     // if (base.GRID_VISIBLE) {
       // base.context.moveTo(0, y);
       // base.context.lineTo(base.width, y);
     // }
 
-    for (var x = base.GRID_SPACING; x < base.width; x += base.GRID_SPACING) {
+    for (var x = 0; x < base.width; x += base.GRID_SPACING) {
       var cell = new base.Cell(x, y);
-          cell.addNeighbor( base.cells[i - 1] );
-          cell.addNeighbor( base.cellAt(x - base.GRID_SPACING, y - base.GRID_SPACING) );
-          cell.addNeighbor( base.cellAt(x, y - base.GRID_SPACING) );
-          cell.addNeighbor( base.cellAt(x + base.GRID_SPACING, y - base.GRID_SPACING) );
       base.cells.push(cell);
       i++;
     }
   }
 
-  // for (var x = base.GRID_SPACING; x < base.width; x += base.GRID_SPACING) {
-    // if (base.GRID_VISIBLE) {
-      // base.context.moveTo(x, 0);
-      // base.context.lineTo(x, base.height);
-    // }
-  // }
-  // base.context.stroke();
+  for (var n = 0; n < base.cells.length; n++) {
+    base.cells[n].setNeighbors();
+  }
+
+  base.eventPos = function (e) {
+    var ex = e.pageX - base.canvas.offsetLeft;
+    var ey = e.pageY - base.canvas.offsetTop;
+
+    var x = ex - (ex % base.GRID_SPACING);
+    var y = ey - (ey % base.GRID_SPACING);
+
+    return {
+      x: x,
+      y: y
+    };
+  };
+
+  base.spawnForEvent = function (e) {
+    var pos = base.eventPos(e);
+    var cell = base.cellAt(pos.x, pos.y);
+    if (typeof(cell) === 'undefined' || cell.living) {
+      return;
+    }
+
+    base.cellAt(pos.x, pos.y).spawn();
+  };
 
   base.canvas.onmousedown = function (e) {
     base.startMouseTracking(e);
@@ -124,33 +130,18 @@ var Life = function (canvas) {
 
   base.startMouseTracking = function (clickEvent) {
     base.canvas.onmousemove = function (e) {
-      var ex = e.pageX - base.canvas.offsetLeft;
-      var ey = e.pageY - base.canvas.offsetTop;
-
-      var x = ex - (ex % base.GRID_SPACING);
-      var y = ey - (ey % base.GRID_SPACING);
-
-      var alreadyPopulated = false;
-      var dl = base.cells.length;
-      for (var i = 0; i < dl; i++) {
-        var cell = base.cells[i];
-        alreadyPopulated = (cell.x === x && cell.y === y && cell.living);
-        if (alreadyPopulated) {
-          break;
-        }
-      }
-
-      if (!alreadyPopulated) {
-        base.cellAt(x, y).spawn();
-      }
+      base.spawnForEvent(e);
     };
+  };
+
+  base.canvas.onclick = function (e) {
+    base.spawnForEvent(e);
   };
 
   base.breed = function () {
 
-    // TODO: Figure out why some cells live longer than they should
-
     var garbage = [];
+    var spawnPool = [];
     var dl = base.cells.length;
     for (var i = 0; i < dl; i++) {
       var cell = base.cells[i];
@@ -167,12 +158,16 @@ var Life = function (canvas) {
           }
         }
 
-        if ( (livingCount < 2 || livingCount > 3) && cell.living ) {
+        if ((livingCount < 2 || livingCount > 3) && cell.living) {
           base.garbage.push(cell);
         } else if (livingCount === 3 && !cell.living) {
-          cell.spawn();
+          spawnPool.push(cell);
         }
       }
+    }
+
+    for (var n = 0; n < spawnPool.length; n++) {
+      spawnPool[n].spawn();
     }
 
     base.collectGarbage();
@@ -195,11 +190,19 @@ var Life = function (canvas) {
   base.start = function () {
     base.breedInterval = setInterval(function () {
       base.breed();
-    }, 2000);
+    }, 500);
   };
 
   base.pause = function () {
     clearInterval(base.breedInterval);
+  };
+
+  document.getElementById('start').onclick = function () {
+    base.start();
+  };
+
+  document.getElementById('pause').onclick = function () {
+    base.pause();
   };
 
   return {
@@ -213,6 +216,6 @@ var life;
 window.onload = function () {
   var canvas = document.getElementById('game');
   life = new Life(canvas);
-  life.start();
+  // life.start();
 };
 
