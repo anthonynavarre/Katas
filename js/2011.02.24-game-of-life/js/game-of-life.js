@@ -1,5 +1,18 @@
 /*jslint plusplus: false */
 
+/*
+ * Conway's Game of Life
+ * 
+ * http://en.wikipedia.org/wiki/Conway's_Game_of_Life
+ * 
+ * THE RULES:
+ * Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+ * Any live cell with two or three live neighbours lives on to the next generation.
+ * Any live cell with more than three live neighbours dies, as if by overcrowding.
+ * Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+ * 
+ */
+
 var Life = function (canvas) {
   var base = this;
 
@@ -12,7 +25,33 @@ var Life = function (canvas) {
   base.context = canvas.getContext('2d');
   base.width = canvas.getAttribute('width');
   base.height = canvas.getAttribute('height');
+  base.cellsPerRow = Math.floor(base.width / base.GRID_SPACING);
+  base.cellsPerCol = Math.floor(base.height / base.GRID_SPACING);
   base.fillStyle = '#000';
+
+  // TODO: Move this off into its own file
+  // Profiling & Logging w/ Firebug, etc.
+  base.console = console;
+
+  base.log = function (msg) {
+    if (typeof base.console === 'undefined') {
+      return;
+    }
+
+    base.console.log(msg);
+  };
+
+  base.profile = function (title, callback) {
+    if (typeof(callback) !== 'function' ||
+        typeof(base.console) === 'undefined' ||
+        typeof(base.console.profile) === 'undefined') {
+      return;
+    }
+
+    base.console.profile(title);
+    callback();
+    base.console.profileEnd();
+  };
 
   base.Cell = function (x, y) {
 
@@ -64,15 +103,9 @@ var Life = function (canvas) {
     };
   };
 
-  // TODO: Make this more robust with some math voodoo instead of loop
   base.cellAt = function (x, y) {
-    var dl = base.cells.length;
-    for (var i = 0; i < dl; i++) {
-      var cell = base.cells[i];
-      if (cell.x === x && cell.y === y) {
-        return cell;
-      }
-    }
+    var index = ((y - 1) * base.cellsPerRow) + x;
+    return base.cells[index];
   };
 
   // set up grid
@@ -89,12 +122,12 @@ var Life = function (canvas) {
     for (var x = 0; x < base.width; x += base.GRID_SPACING) {
       var cell = new base.Cell(x, y);
       base.cells.push(cell);
-      i++;
     }
   }
 
   for (var n = 0; n < base.cells.length; n++) {
     base.cells[n].setNeighbors();
+    break;
   }
 
   base.eventPos = function (e) {
@@ -181,12 +214,6 @@ var Life = function (canvas) {
     base.garbage = [];
   };
 
-  // THE RULES:
-  // Any live cell with fewer than two live neighbours dies, as if caused by under-population.
-  // Any live cell with two or three live neighbours lives on to the next generation.
-  // Any live cell with more than three live neighbours dies, as if by overcrowding.
-  // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-
   base.start = function () {
     base.breedInterval = setInterval(function () {
       base.breed();
@@ -197,6 +224,9 @@ var Life = function (canvas) {
     clearInterval(base.breedInterval);
   };
 
+  // Wire up interface elements
+  // TODO: Split this into separate class?
+  // TODO: More Interface features (eg: speed control, grid spacing)
   document.getElementById('start').onclick = function () {
     base.start();
   };
@@ -216,6 +246,5 @@ var life;
 window.onload = function () {
   var canvas = document.getElementById('game');
   life = new Life(canvas);
-  // life.start();
 };
 
