@@ -18,41 +18,47 @@ var Life = function (canvas) {
 
     var _living = false;
 
-    var _neighbors = function () {
-      var neighborSet = [];
-      var dl = base.cells.length;
+    // var _neighbors = function () {
+      // var neighborSet = [];
+      // var dl = base.cells.length;
 
-      for (var i = 0; i < dl; i++) {
-        var cell = base.cells[i];
+      // for (var i = 0; i < dl; i++) {
+        // var cell = base.cells[i];
 
-        if ((cell.x !== x && cell.y !== y) &&
-            Math.abs(cell.x - Math.abs(x - base.GRID_SPACING)) < base.GRID_SPACING &&
-            Math.abs(cell.y - Math.abs(y - base.GRID_SPACING)) < base.GRID_SPACING
-           ) {
-          neighborSet.push(cell);
-        }
-      }
-
-      // base.context.strokeStyle = '#f00';
-      // base.context.strokeRect(x, y, base.GRID_SPACING, base.GRID_SPACING);
-
-      // for (var n = 0; n < neighborSet.length; n++) {
-        // base.context.fillStyle = '#0f0';
-        // base.context.fillRect(neighborSet[n].x, neighborSet[n].y, base.GRID_SPACING, base.GRID_SPACING);
+        // if ((cell.x !== x && cell.y !== y) &&
+            // Math.abs(cell.x - Math.abs(x - base.GRID_SPACING)) < base.GRID_SPACING &&
+            // Math.abs(cell.y - Math.abs(y - base.GRID_SPACING)) < base.GRID_SPACING
+           // ) {
+          // neighborSet.push(cell);
+        // }
       // }
-      // base.context.fillStyle = '#000';
-      // base.context.strokeStyle = '#000';
 
-      return neighborSet;
+      // // base.context.strokeStyle = '#f00';
+      // // base.context.strokeRect(x, y, base.GRID_SPACING, base.GRID_SPACING);
+
+      // // for (var n = 0; n < neighborSet.length; n++) {
+        // // base.context.fillStyle = '#0f0';
+        // // base.context.fillRect(neighborSet[n].x, neighborSet[n].y, base.GRID_SPACING, base.GRID_SPACING);
+      // // }
+      // // base.context.fillStyle = '#000';
+      // // base.context.strokeStyle = '#000';
+
+      // return neighborSet;
+    // }();
+
+    var _addNeighbor = function (neighbor) {
+      if (typeof neighbor === 'undefined') return;
+      this.neighbors.push(neighbor);
+      neighbor.neighbors.push(this);
     };
 
     var _spawn = function () {
-      _living = true;
+      this.living = true;
       base.context.fillRect(x, y, base.GRID_SPACING, base.GRID_SPACING);
     };
 
     var _die = function () {
-      _living = false;
+      this.living = false;
       base.context.clearRect(x, y, base.GRID_SPACING, base.GRID_SPACING);
     };
 
@@ -62,14 +68,27 @@ var Life = function (canvas) {
       die: _die,
       spawn: _spawn,
       living: _living,
-      neighbors: _neighbors
+      neighbors: [],
+      addNeighbor: _addNeighbor
     };
+  };
+
+  // TODO: Make this more robust with some math voodoo instead of loop
+  base.cellAt = function (x, y) {
+    var dl = base.cells.length;
+    for (var i = 0; i < dl; i++) {
+      var cell = base.cells[i];
+      if (cell.x === x && cell.y === y) {
+        return cell;
+      }
+    }
   };
 
   // set up grid
   base.context.strokeStyle = '#333';
   base.context.lineWidth = 0.3;
 
+  var i = 0;
   for (var y = base.GRID_SPACING; y < base.height; y += base.GRID_SPACING) {
     // if (base.GRID_VISIBLE) {
       // base.context.moveTo(0, y);
@@ -77,7 +96,13 @@ var Life = function (canvas) {
     // }
 
     for (var x = base.GRID_SPACING; x < base.width; x += base.GRID_SPACING) {
-      base.cells.push(new base.Cell(x, y));
+      var cell = new base.Cell(x, y);
+          cell.addNeighbor( base.cells[i - 1] );
+          cell.addNeighbor( base.cellAt(x - base.GRID_SPACING, y - base.GRID_SPACING) );
+          cell.addNeighbor( base.cellAt(x, y - base.GRID_SPACING) );
+          cell.addNeighbor( base.cellAt(x + base.GRID_SPACING, y - base.GRID_SPACING) );
+      base.cells.push(cell);
+      i++;
     }
   }
 
@@ -121,17 +146,6 @@ var Life = function (canvas) {
     };
   };
 
-  // TODO: Make this more robust with some math voodoo instead of loop
-  base.cellAt = function (x, y) {
-    var dl = base.cells.length;
-    for (var i = 0; i < dl; i++) {
-      var cell = base.cells[i];
-      if (cell.x === x && cell.y === y) {
-        return cell;
-      }
-    }
-  };
-
   base.breed = function () {
 
     // TODO: Figure out why some cells live longer than they should
@@ -144,7 +158,7 @@ var Life = function (canvas) {
       if (typeof(cell) === 'undefined') {
         // TODO: Figure out why this is needed
       } else {
-        var neighbors = cell.neighbors();
+        var neighbors = cell.neighbors;
 
         var livingCount = 0;
         for (var x = 0; x < neighbors.length; x++) {
@@ -153,9 +167,9 @@ var Life = function (canvas) {
           }
         }
 
-        if (livingCount < 2 || livingCount > 3) {
+        if ( (livingCount < 2 || livingCount > 3) && cell.living ) {
           base.garbage.push(cell);
-        } else if (livingCount === 3) {
+        } else if (livingCount === 3 && !cell.living) {
           cell.spawn();
         }
       }
@@ -169,6 +183,7 @@ var Life = function (canvas) {
     for (var x = 0; x < gl; x++) {
       base.garbage[x].die();
     }
+    base.garbage = [];
   };
 
   // THE RULES:
@@ -180,7 +195,7 @@ var Life = function (canvas) {
   base.start = function () {
     base.breedInterval = setInterval(function () {
       base.breed();
-    }, 1000);
+    }, 2000);
   };
 
   base.pause = function () {
