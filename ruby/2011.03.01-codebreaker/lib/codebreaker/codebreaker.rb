@@ -1,0 +1,2 @@
+module CodeBreaker
+end
